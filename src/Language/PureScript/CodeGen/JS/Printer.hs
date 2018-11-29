@@ -53,14 +53,6 @@ literals = mkPattern' match'
     , currentIndent
     , return $ emit "}"
     ]
-    where
-    objectPropertyToString :: (Emit gen) => PSString -> gen
-    objectPropertyToString s =
-      emit $ case decodeString s of
-        Just s' | not (identNeedsEscaping s') ->
-          s'
-        _ ->
-          prettyPrintStringJS s
   match (Block _ sts) = mconcat <$> sequence
     [ return $ emit "{\n"
     , withIndent $ prettyStatements sts
@@ -148,6 +140,14 @@ literals = mkPattern' match'
         Nothing -> case T.uncons t of
           Just (x, xs) -> x `T.cons` removeComments xs
           Nothing -> ""
+
+objectPropertyToString :: (Emit gen) => PSString -> gen
+objectPropertyToString s =
+  emit $ case decodeString s of
+    Just s' | not (identNeedsEscaping s') ->
+      s'
+    _ ->
+      prettyPrintStringJS s
 
 accessor :: Pattern PrinterState AST (Text, AST)
 accessor = mkPattern match

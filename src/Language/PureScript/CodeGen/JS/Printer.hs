@@ -111,8 +111,8 @@ literals = mkPattern' match'
     , mconcat <$> forM com comment
     , prettyPrintJS' js
     ]
-  match (Export _ []) = return $ emit "export {}"
-  match (Export _ ns) = fmap mconcat $ sequence $
+  match (Export _ [] _) = return $ emit ""
+  match (Export _ ns mFrom) = fmap mconcat $ sequence $
     [ return $ emit "export {\n"
     , withIndent $ do
         let jss = map objectPropertyToString ns
@@ -121,7 +121,13 @@ literals = mkPattern' match'
     , return $ emit "\n"
     , currentIndent
     , return $ emit "}"
-    ]
+    ] ++ fromClause
+    where
+    fromClause = maybe [] (\path ->
+                  [ return $ emit " from "
+                  , return $ objectPropertyToString path
+                  ]
+                ) mFrom
   match _ = mzero
 
   comment :: (Emit gen) => Comment -> StateT PrinterState Maybe gen

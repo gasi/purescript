@@ -1,0 +1,28 @@
+{
+  "name": "purescript-es2015-codegen",
+  "version": "0.0.0",
+  "description": "PureScript with ES2015 modules codegen for improved tree shaking.",
+  "main": "./es2015-modules/src/entry.js",
+  "scripts": {
+    "test": "stack build && rm -rf es2015-modules/output && stack exec purs -- compile es2015-modules/src/*.purs --output es2015-modules/output && parcel es2015-modules/src/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/purescript/purescript.git"
+  },
+  "keywords": [
+    "purescript",
+    "es2015",
+    "modules",
+    "codegen"
+  ],
+  "author": "Daniel Gasienica <daniel@gasienica.ch>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/purescript/purescript/issues"
+  },
+  "homepage": "https://github.com/purescript/purescript#readme",
+  "devDependencies": {
+    "parcel": "^1.10.3"
+  }
+}

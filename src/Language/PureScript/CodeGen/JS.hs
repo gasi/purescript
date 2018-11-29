@@ -65,12 +65,12 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
     comments <- not <$> asks optionsNoComments
     let strict = AST.StringLiteral Nothing ""
     let header = if comments && not (null coms) then AST.Comment Nothing coms strict else strict
-    let foreign' = [AST.VariableIntroduction Nothing "$foreign" foreign_ | not $ null foreigns || isNothing foreign_]
-    let moduleBody = header : foreign' ++ jsImports ++ concat optimized
+    let moduleBody = header : jsImports ++ concat optimized
     let foreignExps = exps `intersect` foreigns
     let standardExps = exps \\ foreignExps
     let toExport xs = AST.Export Nothing (mkString . runIdent <$> xs)
-    return $ moduleBody ++ [toExport standardExps]
+    return $ moduleBody ++ [toExport standardExps Nothing]
+      ++ [toExport foreignExps (Just "./foreign.js") | not $ null foreigns || isNothing foreign_]
 
   where
 

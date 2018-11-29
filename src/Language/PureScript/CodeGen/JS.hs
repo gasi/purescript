@@ -9,7 +9,6 @@ module Language.PureScript.CodeGen.JS
 import Prelude.Compat
 import Protolude (ordNub)
 
-import Control.Arrow ((&&&))
 import Control.Monad (forM, replicateM, void)
 import Control.Monad.Except (MonadError, throwError)
 import Control.Monad.Reader (MonadReader, asks)
@@ -64,7 +63,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
       . (\\ (mn : C.primModules)) $ ordNub $ map snd imps
     F.traverse_ (F.traverse_ checkIntegers) optimized
     comments <- not <$> asks optionsNoComments
-    let strict = AST.StringLiteral Nothing "use strict"
+    let strict = AST.StringLiteral Nothing ""
     let header = if comments && not (null coms) then AST.Comment Nothing coms strict else strict
     let foreign' = [AST.VariableIntroduction Nothing "$foreign" foreign_ | not $ null foreigns || isNothing foreign_]
     let moduleBody = header : foreign' ++ jsImports ++ concat optimized

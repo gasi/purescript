@@ -1,1 +1,1 @@
-exports.baz = 42;
+exports.baz = "baz";

@@ -111,6 +111,17 @@ literals = mkPattern' match'
     , mconcat <$> forM com comment
     , prettyPrintJS' js
     ]
+  match (Export _ []) = return $ emit "export {}"
+  match (Export _ ns) = fmap mconcat $ sequence $
+    [ return $ emit "export {\n"
+    , withIndent $ do
+        let jss = map objectPropertyToString ns
+        indentString <- currentIndent
+        return $ intercalate (emit ",\n") $ map (indentString <>) jss
+    , return $ emit "\n"
+    , currentIndent
+    , return $ emit "}"
+    ]
   match _ = mzero
 
   comment :: (Emit gen) => Comment -> StateT PrinterState Maybe gen

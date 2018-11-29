@@ -92,6 +92,8 @@ data AST
   -- ^ instanceof check
   | Comment (Maybe SourceSpan) [Comment] AST
   -- ^ Commented JavaScript
+  | Export (Maybe SourceSpan) [PSString]
+  -- ^ Export statement
   deriving (Show, Eq)
 
 withSourceSpan :: SourceSpan -> AST -> AST
@@ -123,6 +125,7 @@ withSourceSpan withSpan = go where
   go (Throw _ js) = Throw ss js
   go (InstanceOf _ j1 j2) = InstanceOf ss j1 j2
   go (Comment _ com j) = Comment ss com j
+  go (Export _ js) = Export ss js
 
 getSourceSpan :: AST -> Maybe SourceSpan
 getSourceSpan = go where
@@ -150,6 +153,7 @@ getSourceSpan = go where
   go (Throw ss _) = ss
   go (InstanceOf ss _ _) = ss
   go (Comment ss _ _) = ss
+  go (Export ss _) = ss
 
 everywhere :: (AST -> AST) -> AST -> AST
 everywhere f = go where

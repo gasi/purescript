@@ -32,3 +32,6 @@ TAGS
 *.prof
 *.ps
 *.svg
+
+# macOS
+.DS_Store

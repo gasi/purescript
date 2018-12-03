@@ -1,4 +1,4 @@
-module Main (foo, bar, quux, baz, importedBaz) where
+module Main (foo, bar, baz, quux) where
 
 import Quux as Quux
 
@@ -12,6 +12,3 @@ foreign import baz :: String
 
 quux :: String
 quux = Quux.quux
-
-importedBaz :: String
-importedBaz = baz

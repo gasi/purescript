@@ -18,6 +18,7 @@ import Data.List ((\\), intersect)
 import qualified Data.Foldable as F
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe, isNothing)
+import qualified Data.List.NonEmpty as NEL
 import Data.String (fromString)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -66,11 +67,20 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
     let moduleBody = header : jsImports ++ jsForeignImport ++ concat optimized
     let foreignExps = exps `intersect` foreigns
     let standardExps = exps \\ foreignExps
-    let toExport xs = AST.Export Nothing (mkString . runIdent <$> xs)
-    return $ moduleBody ++ [toExport standardExps Nothing]
-      ++ [toExport foreignExps (Just "./foreign.js") | not $ null foreigns || isNothing foreign_]
+    return $ moduleBody <>
+      (toExport standardExps Nothing) <>
+      (if not $ null foreigns || isNothing foreign_
+        then toExport foreignExps (Just "./foreign.js")
+        else []
+      )
 
   where
+
+  toExport :: [Ident] -> Maybe PSString -> [AST.AST]
+  toExport xs from_ =
+    case NEL.nonEmpty xs of
+      Just nxs -> [AST.Export Nothing (mkString . runIdent <$> nxs) from_]
+      Nothing -> []
 
   -- | Extracts all declaration names from a binding group.
   getNames :: Bind Ann -> [Ident]

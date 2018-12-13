@@ -5,6 +5,7 @@ import Prelude.Compat
 
 import Control.Monad ((>=>))
 import Control.Monad.Identity (Identity(..), runIdentity)
+import qualified Data.List.NonEmpty as NEL
 import Data.Text (Text)
 
 import Language.PureScript.AST (SourceSpan(..))
@@ -94,7 +95,7 @@ data AST
   -- ^ Commented JavaScript
   | Import (Maybe SourceSpan) Text PSString
   -- ^ Import statement with name and `from` path
-  | Export (Maybe SourceSpan) [PSString] (Maybe PSString)
+  | Export (Maybe SourceSpan) (NEL.NonEmpty PSString) (Maybe PSString)
   -- ^ Export statement with exported names and optional `from` path
   deriving (Show, Eq)
 

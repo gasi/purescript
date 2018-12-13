@@ -13,6 +13,7 @@ import Control.PatternArrows
 import qualified Control.Arrow as A
 
 import Data.Maybe (fromMaybe)
+import qualified Data.List.NonEmpty as NEL
 import Data.Text (Text)
 import qualified Data.Text as T
 
@@ -111,13 +112,12 @@ literals = mkPattern' match'
     , mconcat <$> forM com comment
     , prettyPrintJS' js
     ]
-  match (Export _ [] _) = return $ emit ""
   match (Export _ ns mFrom) = fmap mconcat $ sequence $
     [ return $ emit "export {\n"
     , withIndent $ do
-        let jss = map objectPropertyToString ns
+        let jss = objectPropertyToString <$> ns
         indentString <- currentIndent
-        return $ intercalate (emit ",\n") $ map (indentString <>) jss
+        return $ intercalate (emit ",\n") $ NEL.toList $ (indentString <>) <$> jss
     , return $ emit "\n"
     , currentIndent
     , return $ emit "}"

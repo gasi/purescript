@@ -92,6 +92,8 @@ data AST
   -- ^ instanceof check
   | Comment (Maybe SourceSpan) [Comment] AST
   -- ^ Commented JavaScript
+  | Import (Maybe SourceSpan) Text PSString
+  -- ^ Import statement with name and `from` path
   | Export (Maybe SourceSpan) [PSString] (Maybe PSString)
   -- ^ Export statement with exported names and optional `from` path
   deriving (Show, Eq)
@@ -125,6 +127,7 @@ withSourceSpan withSpan = go where
   go (Throw _ js) = Throw ss js
   go (InstanceOf _ j1 j2) = InstanceOf ss j1 j2
   go (Comment _ com j) = Comment ss com j
+  go (Import _ name path) = Import ss name path
   go (Export _ js from_) = Export ss js from_
 
 getSourceSpan :: AST -> Maybe SourceSpan
@@ -153,6 +156,7 @@ getSourceSpan = go where
   go (Throw ss _) = ss
   go (InstanceOf ss _ _) = ss
   go (Comment ss _ _) = ss
+  go (Import ss _ _) = ss
   go (Export ss _ _) = ss
 
 everywhere :: (AST -> AST) -> AST -> AST

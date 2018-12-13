@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/purescript/purescript#readme",
   "devDependencies": {
-    "parcel": "^1.10.3"
+    "parcel": "^1.10.3",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
   }
 }

@@ -53,6 +53,8 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
   rethrow (addHint (ErrorInModule mn)) $ do
     let usedNames = concatMap getNames decls
     let mnLookup = renameImports usedNames imps
+    -- TODO: Determine if FFI (foreign) imports are used before generating this:
+    let jsForeignImport = [AST.Import Nothing "$foreign" "./foreign.js" | not $ null foreigns || isNothing foreign_]
     let decls' = renameModules mnLookup decls
     jsDecls <- mapM bindToJs decls'
     optimized <- traverse (traverse optimize) jsDecls
@@ -65,7 +67,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
     comments <- not <$> asks optionsNoComments
     let strict = AST.StringLiteral Nothing ""
     let header = if comments && not (null coms) then AST.Comment Nothing coms strict else strict
-    let moduleBody = header : jsImports ++ concat optimized
+    let moduleBody = header : jsImports ++ jsForeignImport ++ concat optimized
     let foreignExps = exps `intersect` foreigns
     let standardExps = exps \\ foreignExps
     let toExport xs = AST.Export Nothing (mkString . runIdent <$> xs)
@@ -105,9 +107,9 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
   importToJs :: M.Map ModuleName (Ann, ModuleName) -> ModuleName -> m AST
   importToJs mnLookup mn' = do
     let ((ss, _, _, _), mnSafe) = fromMaybe (internalError "Missing value in mnLookup") $ M.lookup mn' mnLookup
-    let moduleBody = AST.App Nothing (AST.Var Nothing "require")
-          [AST.StringLiteral Nothing (fromString (".." </> T.unpack (runModuleName mn') </> "index.js"))]
-    withPos ss $ AST.VariableIntroduction Nothing (moduleNameToJs mnSafe) (Just moduleBody)
+    let moduleName = fromString . T.unpack $ moduleNameToJs mnSafe
+    let modulePath = fromString $ ".." </> T.unpack (runModuleName mn') </> "index.js"
+    withPos ss $ AST.Import Nothing moduleName modulePath
 
   -- | Replaces the `ModuleName`s in the AST so that the generated code refers to
   -- the collision-avoiding renamed module imports.

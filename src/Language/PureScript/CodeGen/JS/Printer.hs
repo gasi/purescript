@@ -128,6 +128,12 @@ literals = mkPattern' match'
                   , return $ objectPropertyToString path
                   ]
                 ) mFrom
+  match (Import _ name path) = mconcat <$> sequence
+    [ return $ emit "import * as "
+    , return $ emit name
+    , return $ emit " from "
+    , return $ emit $ prettyPrintStringJS path
+    ]
   match _ = mzero
 
   comment :: (Emit gen) => Comment -> StateT PrinterState Maybe gen

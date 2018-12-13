@@ -160,12 +160,15 @@ buildMakeActions outputDir filePathMap foreigns usePrefix =
     when (S.member JS codegenTargets) $ do
       foreignInclude <- case mn `M.lookup` foreigns of
         Just _
-          | not $ requiresForeign m -> do
+          | not $ requiresForeign m ->
               return Nothing
-          | otherwise -> do
+          | otherwise ->
               return $ Just $ Imp.App Nothing (Imp.Var Nothing "require") [Imp.StringLiteral Nothing "./foreign.js"]
-        Nothing | requiresForeign m -> throwError . errorMessage' (CF.moduleSourceSpan m) $ MissingFFIModule mn
-                | otherwise -> return Nothing
+        Nothing
+          | requiresForeign m ->
+              throwError . errorMessage' (CF.moduleSourceSpan m) $ MissingFFIModule mn
+          | otherwise ->
+              return Nothing
       rawJs <- J.moduleToJs m foreignInclude
       dir <- lift $ makeIO (const (ErrorMessage [] $ CannotGetFileInfo ".")) getCurrentDirectory
       let sourceMaps = S.member JSSourceMap codegenTargets
